@@ -55,11 +55,23 @@ app.put("/products/:id", (req, res) => {
 
 // Delete Product
 app.delete("/products/:id", (req, res) => {
-    const index = products.findIndex(p => p.id === parseInt(req.params.id));
-    if (index === -1) return res.status(404).send({ message: "Product not found" });
+    const id = parseInt(req.params.id);
+    
+    // Validate ID is a number
+    if (isNaN(id)) {
+        return res.status(400).json({ message: "Invalid product ID. Must be a number." });
+    }
+    
+    const index = products.findIndex(p => p.id === id);
+    if (index === -1) {
+        return res.status(404).json({ message: "Product not found" });
+    }
 
-    const deletedProduct = products.splice(index, 1);
-    res.send({ message: "Product deleted", product: deletedProduct[0] });
+    const deletedProduct = products.splice(index, 1)[0];
+    res.status(200).json({ 
+        message: "Product deleted successfully", 
+        product: deletedProduct 
+    });
 });
 
 // --- Server ---
