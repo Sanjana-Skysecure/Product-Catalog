@@ -42,15 +42,43 @@ app.get("/products/:id", (req, res) => {
 
 // Update Product
 app.put("/products/:id", (req, res) => {
-    const product = products.find(p => p.id === parseInt(req.params.id));
-    if (!product) return res.status(404).send({ message: "Product not found" });
+    const id = parseInt(req.params.id);
+    
+    // Validate ID is a number
+    if (isNaN(id)) {
+        return res.status(400).json({ message: "Invalid product ID. Must be a number." });
+    }
+    
+    const product = products.find(p => p.id === id);
+    if (!product) {
+        return res.status(404).json({ message: "Product not found" });
+    }
 
     const { name, price, quantity } = req.body;
-    if (name) product.name = name;
-    if (price) product.price = price;
-    if (quantity) product.quantity = quantity;
+    
+    // Validate and update fields
+    if (name !== undefined) {
+        if (typeof name !== 'string' || name.trim() === '') {
+            return res.status(400).json({ message: "Name must be a non-empty string" });
+        }
+        product.name = name.trim();
+    }
+    
+    if (price !== undefined) {
+        if (typeof price !== 'number' || price <= 0) {
+            return res.status(400).json({ message: "Price must be a positive number" });
+        }
+        product.price = price;
+    }
+    
+    if (quantity !== undefined) {
+        if (typeof quantity !== 'number' || quantity <= 0 || !Number.isInteger(quantity)) {
+            return res.status(400).json({ message: "Quantity must be a positive integer" });
+        }
+        product.quantity = quantity;
+    }
 
-    res.send({ message: "Product updated", product });
+    res.status(200).json({ message: "Product updated successfully", product });
 });
 
 // Delete Product
