@@ -18,9 +18,21 @@ let products = [
 // Create Product
 app.post("/products", (req, res) => {
     const { id, name, price, quantity } = req.body;
+    
+    // Validation: All fields required
     if (!id || !name || !price || !quantity) {
         return res.status(400).send({ message: "All fields are required" });
     }
+    
+    // Validation: Price and quantity must be positive numbers
+    if (typeof price !== 'number' || price <= 0) {
+        return res.status(400).send({ message: "Price must be a positive number" });
+    }
+    if (typeof quantity !== 'number' || quantity <= 0 || !Number.isInteger(quantity)) {
+        return res.status(400).send({ message: "Quantity must be a positive integer" });
+    }
+    
+    // Check for duplicate ID
     const exists = products.find(p => p.id === id);
     if (exists) return res.status(400).send({ message: "Product with this ID already exists" });
 
