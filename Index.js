@@ -30,14 +30,31 @@ app.post("/products", (req, res) => {
 
 // Read All Products
 app.get("/products", (req, res) => {
-    res.send(products);
+    res.status(200).json({
+        message: "Products retrieved successfully",
+        count: products.length,
+        products: products
+    });
 });
 
 // Read Single Product by ID
 app.get("/products/:id", (req, res) => {
-    const product = products.find(p => p.id === parseInt(req.params.id));
-    if (!product) return res.status(404).send({ message: "Product not found" });
-    res.send(product);
+    const id = parseInt(req.params.id);
+    
+    // Validate ID is a number
+    if (isNaN(id)) {
+        return res.status(400).json({ message: "Invalid product ID. Must be a number." });
+    }
+    
+    const product = products.find(p => p.id === id);
+    if (!product) {
+        return res.status(404).json({ message: "Product not found" });
+    }
+    
+    res.status(200).json({
+        message: "Product retrieved successfully",
+        product: product
+    });
 });
 
 // Update Product
